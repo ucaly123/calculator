@@ -1,119 +1,71 @@
 import streamlit as st
 import math
 
-# 페이지 설정 (제목, 아이콘 등)
-st.set_page_config(page_title="나만의 스마트 계산기", page_icon="🧮")
+st.title("📘 Streamlit 계산기")
 
-st.title("🧮 파이썬 스마트 계산기")
-st.markdown("사칙연산뿐만 아니라 나머지, 거듭제곱, 로그 계산까지 가능한 웹앱입니다.")
+st.write("사칙연산, 모듈러, 지수, 로그 계산을 지원합니다.")
 
-# CSS로 약간의 스타일링 추가 (선택 사항)
-st.markdown("""
-<style>
-    div.stButton > button:first-child {
-        background-color: #0099ff;
-        color: white;
-        font-size: 20px;
-        height: 3em;
-        width: 100%; 
-    }
-</style>
-""", unsafe_allow_html=True)
+# ----------------------------
+# 입력값
+# ----------------------------
+st.header("🔢 숫자 입력")
+num1 = st.number_input("첫 번째 숫자", value=0.0, format="%.10f")
+num2 = st.number_input("두 번째 숫자", value=0.0, format="%.10f")
 
-# 구분선
-st.divider()
-
-# 입력 레이아웃: 컬럼 2개로 나누어 숫자 입력 받기
-col1, col2 = st.columns(2)
-
-with col1:
-    num1 = st.number_input("첫 번째 숫자 (또는 진수)", value=0.0, format="%.4f")
-
-with col2:
-    num2 = st.number_input("두 번째 숫자 (또는 밑)", value=0.0, format="%.4f")
-
-# 연산 선택 박스
+# ----------------------------
+# 연산 선택
+# ----------------------------
+st.header("⚙ 연산 선택")
 operation = st.selectbox(
-    "연산 방식을 선택하세요",
+    "원하는 계산을 선택하세요",
     [
-        "더하기 (+)", 
-        "빼기 (-)", 
-        "곱하기 (*)", 
-        "나누기 (/)", 
-        "나머지 연산 (%)", 
-        "거듭제곱 (**)", 
-        "로그 연산 (log)"
+        "덧셈 (+)",
+        "뺄셈 (-)",
+        "곱셈 (×)",
+        "나눗셈 (÷)",
+        "모듈러 (%)",
+        "지수 (a^b)",
+        "로그 (log_a(b))"
     ]
 )
 
-# 계산 버튼 및 로직
-if st.button("계산하기"):
-    result = None
-    error_msg = None
+# ----------------------------
+# 계산 로직
+# ----------------------------
+st.header("📌 결과")
 
-    try:
-        # 1. 더하기
-        if "더하기" in operation:
-            result = num1 + num2
-        
-        # 2. 빼기
-        elif "빼기" in operation:
-            result = num1 - num2
-        
-        # 3. 곱하기
-        elif "곱하기" in operation:
-            result = num1 * num2
-        
-        # 4. 나누기
-        elif "나누기" in operation:
-            if num2 == 0:
-                error_msg = "❌ 0으로 나눌 수 없습니다."
-            else:
-                result = num1 / num2
-        
-        # 5. 나머지 연산
-        elif "나머지" in operation:
-            if num2 == 0:
-                error_msg = "❌ 0으로 나눌 수 없습니다."
-            else:
-                result = num1 % num2
-        
-        # 6. 거듭제곱 (지수)
-        elif "거듭제곱" in operation:
-            # 결과가 너무 커지는 것을 방지하기 위한 예외처리 (선택 사항)
-            if abs(num1) > 100 and num2 > 100:
-                error_msg = "❌ 숫자가 너무 커서 계산할 수 없습니다."
-            else:
-                result = num1 ** num2
-        
-        # 7. 로그 연산
-        elif "로그" in operation:
-            # num1: 진수 (Anti-logarithm), num2: 밑 (Base)
-            # 조건: 진수 > 0, 밑 > 0, 밑 != 1
-            if num1 <= 0:
-                error_msg = "❌ 진수(첫 번째 숫자)는 0보다 커야 합니다."
-            elif num2 <= 0:
-                error_msg = "❌ 밑(두 번째 숫자)은 0보다 커야 합니다."
-            elif num2 == 1:
-                error_msg = "❌ 밑(두 번째 숫자)은 1이 될 수 없습니다."
-            else:
-                result = math.log(num1, num2)
+try:
+    if operation == "덧셈 (+)":
+        result = num1 + num2
 
-    except Exception as e:
-        error_msg = f"계산 중 오류가 발생했습니다: {e}"
+    elif operation == "뺄셈 (-)":
+        result = num1 - num2
 
-    # 결과 출력
-    st.divider()
-    if error_msg:
-        st.error(error_msg)
-    else:
-        st.success(f"결과 값: {result}")
-        # 수식으로도 보여주기 (옵션)
-        if "로그" in operation:
-            st.info(f"계산 식: log_{num2}({num1}) = {result}")
-        elif "거듭제곱" in operation:
-             st.info(f"계산 식: {num1} ^{num2} = {result}")
+    elif operation == "곱셈 (×)":
+        result = num1 * num2
+
+    elif operation == "나눗셈 (÷)":
+        if num2 == 0:
+            result = "❌ 0으로 나눌 수 없습니다."
         else:
-             # 간단한 기호 매핑
-            symbol = operation.split("(")[1].replace(")", "")
-            st.info(f"계산 식: {num1} {symbol} {num2} = {result}")
+            result = num1 / num2
+
+    elif operation == "모듈러 (%)":
+        if num2 == 0:
+            result = "❌ 0으로 나눌 수 없습니다."
+        else:
+            result = num1 % num2
+
+    elif operation == "지수 (a^b)":
+        result = num1 ** num2
+
+    elif operation == "로그 (log_a(b))":
+        if num1 <= 0 or num1 == 1 or num2 <= 0:
+            result = "❌ 로그의 밑은 1이 아니어야 하며 양수이어야 합니다. 로그 인수도 양수여야 합니다."
+        else:
+            result = math.log(num2, num1)
+
+    st.success(f"결과: {result}")
+
+except Exception as e:
+    st.error(f"오류 발생: {e}")
